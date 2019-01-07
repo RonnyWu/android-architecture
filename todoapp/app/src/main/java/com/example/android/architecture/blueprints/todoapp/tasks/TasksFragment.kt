@@ -17,28 +17,22 @@
 package com.example.android.architecture.blueprints.todoapp.tasks
 
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.PopupMenu
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.databinding.TasksFragBinding
 import com.example.android.architecture.blueprints.todoapp.util.setupSnackbar
-import java.util.ArrayList
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import java.util.*
 
 /**
  * Display a grid of [Task]s. User can choose to view all, active or completed tasks.
  */
-class TasksFragment : Fragment() {
+class TasksFragment : androidx.fragment.app.Fragment() {
 
     private lateinit var viewDataBinding: TasksFragBinding
     private lateinit var listAdapter: TasksAdapter
@@ -89,27 +83,29 @@ class TasksFragment : Fragment() {
     }
 
     private fun showFilteringPopUpMenu() {
-        PopupMenu(context, activity.findViewById<View>(R.id.menu_filter)).run {
-            menuInflater.inflate(R.menu.filter_tasks, menu)
+        context?.let {
+            PopupMenu(it, activity!!.findViewById<View>(R.id.menu_filter)).run {
+                menuInflater.inflate(R.menu.filter_tasks, menu)
 
-            setOnMenuItemClickListener {
-                viewDataBinding.viewmodel?.run {
-                    currentFiltering =
-                            when (it.itemId) {
-                                R.id.active -> TasksFilterType.ACTIVE_TASKS
-                                R.id.completed -> TasksFilterType.COMPLETED_TASKS
-                                else -> TasksFilterType.ALL_TASKS
-                            }
-                    loadTasks(false)
+                setOnMenuItemClickListener {
+                    viewDataBinding.viewmodel?.run {
+                        currentFiltering =
+                                when (it.itemId) {
+                                    R.id.active -> TasksFilterType.ACTIVE_TASKS
+                                    R.id.completed -> TasksFilterType.COMPLETED_TASKS
+                                    else -> TasksFilterType.ALL_TASKS
+                                }
+                        loadTasks(false)
+                    }
+                    true
                 }
-                true
+                show()
             }
-            show()
         }
     }
 
     private fun setupFab() {
-        activity.findViewById<FloatingActionButton>(R.id.fab_add_task).run {
+        activity!!.findViewById<FloatingActionButton>(R.id.fab_add_task).run {
             setImageResource(R.drawable.ic_add)
             setOnClickListener {
                 viewDataBinding.viewmodel?.addNewTask()
@@ -130,9 +126,9 @@ class TasksFragment : Fragment() {
     private fun setupRefreshLayout() {
         viewDataBinding.refreshLayout.run {
             setColorSchemeColors(
-                    ContextCompat.getColor(activity, R.color.colorPrimary),
-                    ContextCompat.getColor(activity, R.color.colorAccent),
-                    ContextCompat.getColor(activity, R.color.colorPrimaryDark)
+                activity?.let { ContextCompat.getColor(it, R.color.colorPrimary) }!!,
+                    ContextCompat.getColor(activity!!, R.color.colorAccent),
+                    ContextCompat.getColor(activity!!, R.color.colorPrimaryDark)
             )
             // Set the scrolling view in the custom SwipeRefreshLayout.
             scrollUpChild = viewDataBinding.tasksList

@@ -16,10 +16,10 @@
 package com.example.android.architecture.blueprints.todoapp.addedittask
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.databinding.ObservableBoolean
-import android.databinding.ObservableField
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
+import androidx.lifecycle.AndroidViewModel
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.SingleLiveEvent
 import com.example.android.architecture.blueprints.todoapp.data.Task
@@ -84,8 +84,8 @@ class AddEditTaskViewModel(
 
     // Called when clicking on fab.
     fun saveTask() {
-        val task = Task(title.get(), description.get())
-        if (task.isEmpty) {
+        val task = title.get()?.let { description.get()?.let { it1 -> Task(it, it1) } }
+        if (task!!.isEmpty) {
             showSnackbarMessage(R.string.empty_task_message)
             return
         }
@@ -93,8 +93,12 @@ class AddEditTaskViewModel(
             createTask(task)
         } else {
             taskId?.let {
-                updateTask(Task(title.get(), description.get(), it)
-                        .apply { isCompleted = taskCompleted })
+                title.get()?.let { it1 ->
+                    description.get()?.let { it2 ->
+                        Task(it1, it2, it)
+                            .apply { isCompleted = taskCompleted }
+                    }
+                }?.let { it2 -> updateTask(it2) }
             }
         }
     }
